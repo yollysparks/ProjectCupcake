@@ -7,40 +7,57 @@ package Data;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  *
  * @author felesiah
  */
 public class DB {
-     private Connection con;
-    private static DB instance;
-    private static PreparedStatement stmt;
-    private static String driver = "com.mysql.jdbc.Driver";
-    private static String URL = "jdbc:mysql://localhost:3306/cupcakes?useSSL=false";
-    private static String id = "root";
-    private static String pw = "indeche2013";
-
-    public Connection getConnection() {
-        Connection con = null;
-        try {
+    public static final String driver = "com.mysql.jdbc.Driver";
+    public static final String url = "jdbc:mysql://localhost:3306/cupcakes?useSSL=false";
+    public static final String username = "root";
+    public static final String password = "indeche2013";
+    
+    Connection conn;
+    public  Connection getConnection(){
+        Connection conn = null;
+        try{
             Class.forName(driver);
-            con = DriverManager.getConnection(URL, id, pw);  
-
-        } catch (Exception e) {
-            System.out.println("\n*** Remember to insert your  ID and PW in the DBConnector class! ***\n");
-            System.out.println("error in DBConnector.getConnection()");
-            System.out.println(e);
+            conn = DriverManager.getConnection(DB.url,DB.username,DB.password);
+            
+        } catch(ClassNotFoundException se){
+           se.printStackTrace();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
-        return con;
+        return conn;
     }
-
-    public void releaseConnection(Connection con) {
-        try {
-            con.close();
-        } catch (Exception e) {
-            System.err.println(e);
+    public void close(Statement stmt, ResultSet rs, Connection conn){
+        try{
+            if(rs != null)
+                rs.close();
+            stmt.close();
+            conn.close();
+        } catch(SQLException se){
+            
+        } catch(Exception ex){
+            
+        }
+        finally{
+            try{
+              if(stmt!=null)
+                 stmt.close();
+           }catch(SQLException se2){
+           }// nothing we can do
+           try{
+              if(conn!=null)
+                 conn.close();
+           }catch(SQLException se){
+              se.printStackTrace();
+           }
         }
     }
     

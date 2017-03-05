@@ -6,7 +6,6 @@
 package Data;
 
 import Model.User;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +25,7 @@ public class UserMapper {
         // termination by the garbage collector	
     }
     
-    public User getName(){
+    public User getName() throws ClassNotFoundException, SQLException{
         ResultSet rs = null;
         Statement stmt = null;
         User user = null;
@@ -34,20 +33,39 @@ public class UserMapper {
                 "select * "
                 + "from user where name = ?";          
         try {
+            Class.forName("com.mysql.jdbc.Driver");
             stmt = con.createStatement();
             rs = stmt.executeQuery(SQLString);
-
-            if (rs.next()) {
-                 user = new User(rs.getString(1),
-                        rs.getString(2),
-                        rs.getDouble(3));
-            }
-        } catch (SQLException e) {
+while(rs.next()){
+         //Retrieve by column name
+         String Name = rs.getString("name");
+         String pswd = rs.getString("password");
+         double bal = rs.getDouble("balance");
+        
             System.out.println("Fail in UserMapper - getName");
-            System.out.println(e.getMessage());
-        }       
-        return user;
+            System.out.print(", name: " + Name);
+            System.out.print(", employee pswd : " +pswd );
+            System.out.println(", balance : "+ bal);
+       }
+         //STEP 6: Clean-up environment
+        rs.close();
+        stmt.close();
+        con.close();
+   }catch(SQLException se){
+      //Handle errors for JDBC
+      se.printStackTrace();
+   }catch(Exception e){
+      //Handle errors for Class.forName
+      e.printStackTrace();
+   }finally{
+       if(stmt!=null)
+           stmt.close();
+       if(con!=null)
+           con.close();
+   }//end try
+        return null;
     }
+
 public User getUserByPassword(String password){
         ResultSet rs = null;
         Statement stmt = null;
